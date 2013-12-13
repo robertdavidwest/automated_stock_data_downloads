@@ -1,4 +1,4 @@
-automated_stock_data_dowloads
+automated_stock_data_downloads
 =============================
 
 ##Installation
