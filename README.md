@@ -3,7 +3,7 @@ automated_stock_data_dowloads
 
 ##Installation
 
-To install the `automated_stock_data_downloads` modules onto your computer, go into
+To install the `automated_stock_data_downloads` module onto your computer, go into
 your desired folder of choice (say `Downloads`), and:
 
 1. Clone the repository
