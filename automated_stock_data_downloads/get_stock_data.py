@@ -17,7 +17,7 @@ import time
 import urllib2
 
 
-def adj_close(interface_filename='get_stocks_for_tsr.xlsx', assumptions_first_row=4, ticker_first_row=8, assumptions_columns='B:C', ticker_columns='C'):
+def adj_close(interface_filename='get_stocks_for_tsr.xlsx' ):
 
 	"""
 	Given a Vaulation Date, Lookback Period and a list of tickers, this function will output a matrix of adjusted daily close stock 
@@ -47,18 +47,6 @@ def adj_close(interface_filename='get_stocks_for_tsr.xlsx', assumptions_first_ro
 	
 		interface_filename: :meth:`str` The name of the excel interface file. The default name is <get_stock_data.xlsx>
 	
-		assumptions_first_row :meth: `int` The first row in the excel interface of input data. Do not change from the default 
-		value unless the interface file has been modified
-		
-		ticker_first_row  :meth: `int` The first row in the excel interface of ticker data. Do not change from the default 
-		value unless the interface file has been modified
-		
-		 assumptions_columns :meth:`str` A string showing the columns within the excel interface file holding the general
-		 assumptions. Do not change from the default value unless the interface file has been modified
-		 
-		 ticker_columns  :meth:`str` A string showing the column within the excel interface file holding the tickers. Do not
-		 change from the default value unless the interface file has been modified
-	
 	:RETURNS:
 	
 	The function will add 3 new sheets to the existing interface file
@@ -76,12 +64,25 @@ def adj_close(interface_filename='get_stocks_for_tsr.xlsx', assumptions_first_ro
 	"""
 	
 	############################
-	# Show the progress fish to user
-	fish.fish()
+	# Hardcoded reference to location of data in excel file 
+	#
+	# Do not change from the default value unless the interface file has been modified
+	#
+	assumptions_first_row=4
+	ticker_first_row=8
+	assumptions_columns='B:C'
+	ticker_columns='C'
+	#
+	# assumptions_first_row :meth: `int` The first row in the excel interface of input data. 
+	# ticker_first_row  :meth: `int` The first row in the excel interface of ticker data.
+	# assumptions_columns :meth:`str` A string showing the columns within the excel interface file holding the general assumptions. 
+	# ticker_columns  :meth:`str` A string showing the column within the excel interface file holding the tickers. 
+	
+
 	
 	############################
 	#read general assumptions from the interfacefile
-	assumptions  = pandas.read_excel(interface_filename, 'Assumptions', skiprows = assumptions_first_row - 2, index_col = 0, parse_cols= assumption_columns)
+	assumptions  = pandas.read_excel(interface_filename, 'Assumptions', skiprows = assumptions_first_row - 2, index_col = 0, parse_cols= assumptions_columns)
 	
 	val_date = assumptions.ix['Valuation Date', 0]
 	val_date = pandas.Timestamp(val_date) #cast date to Pandas timestamp
@@ -89,19 +90,26 @@ def adj_close(interface_filename='get_stocks_for_tsr.xlsx', assumptions_first_ro
 	lookback_period = assumptions.ix['Lookback Period (years)', 0]
 	lookback_date = val_date - datetime.timedelta(days = 365.25 * lookback_period)
 	lookback_date = pandas.Timestamp(lookback_date) #cast date to Pandas timestamp for consistency
-		
+	
 		
 	############################
 	#get list of tickers from the interface file
-	ticker_data = pandas.read_excel(filename, 'Assumptions', skiprows = ticker_first_row - 2, parse_cols= ticker_columns)
+	ticker_data = pandas.read_excel(interface_filename, 'Assumptions', skiprows = ticker_first_row - 2, parse_cols= ticker_columns)
 	ticker_data = ticker_data[ticker_data.Tickers.notnull()] # remove rows that do not contain tickers
 	
+	############################
+	# Show the progress fish to user whilst program is running
+	fishy = fish.ProgressFish(total=len(ticker_data.Tickers))
 	
 	############################
 	# Download adjusted stock price data directly from Yahoo! API	
 	stock_dict = {}
 	no_data = []
-	for ticker in ticker_data.Tickers:
+	for i, ticker in enumerate(ticker_data.Tickers):
+		
+		# use Progress fish so the user can see how long the run time will be 
+		fishy.animate(amount = i)
+		
 		# make sure the selected ticker has stock data over the specified period, if not display a message and exclude the ticker
 		try:
 			stock_dict[ticker] = pandas.io.data.DataReader(ticker, "yahoo", lookback_date, val_date)['Adj Close']		
@@ -111,8 +119,7 @@ def adj_close(interface_filename='get_stocks_for_tsr.xlsx', assumptions_first_ro
 	
 	stock_data = pandas.DataFrame(stock_dict)
 	no_data = pandas.DataFrame({'Ticker':no_data})
-	
-	
+		
 	############################
 	# Get volatilities 
 	log_returns = stock_data.apply(numpy.log).diff() #calculate log returns of daily adjustced close prices
@@ -147,10 +154,6 @@ def sp500_tickers():
 	The results will be output into a csv file
 	"""
 		
-	############################
-	# Show the progress fish to user
-	fish.fish()
-	
 	url = 'http://en.wikipedia.org/wiki/List_of_S&P_500_companies'
 	soup = bs4.BeautifulSoup(urllib2.urlopen(url))
 	 

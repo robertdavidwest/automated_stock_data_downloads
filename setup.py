@@ -4,7 +4,7 @@
 from distutils.core import setup
 
 setup(name='automated_stock_data_downloads',
-      version='0.0.1',
+      version='0.0.2',
       description='Download Adjusted Close stock price data and find constituent tickers from Indices',
       author='Robert D. West',
       author_email='robert.david.west@gmail.com',

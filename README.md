@@ -31,7 +31,7 @@ your desired folder of choice (say `Downloads`), and:
         help      -> Python's own help system.
         object?   -> Details about 'object', use 'object??' for extra details.
 	
-        In [1]: import get_stock_data
+        In [1]: import automated_stock_data_downloads
 
 
 ##Documentation 
