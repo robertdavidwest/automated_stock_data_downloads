@@ -64,25 +64,25 @@ def adj_close(interface_filename='get_stocks_for_tsr.xlsx' ):
     """
     
     ############################
-	# Hardcoded reference to location of data in excel file 
-	#
-	# Do not change from the default value unless the interface file has been modified
-	#
-	assumptions_first_row=4
-	ticker_first_row=8
-	assumptions_columns='B:C'
-	ticker_columns='C'
-	#
-	# assumptions_first_row :meth: `int` The first row in the excel interface of input data. 
-	# ticker_first_row  :meth: `int` The first row in the excel interface of ticker data.
-	# assumptions_columns :meth:`str` A string showing the columns within the excel interface file holding the general assumptions. 
-	# ticker_columns  :meth:`str` A string showing the column within the excel interface file holding the tickers. 
+    # Hardcoded reference to location of data in excel file 
+    #
+    # Do not change from the default value unless the interface file has been modified
+    #
+    assumptions_first_row=4
+    ticker_first_row=8
+    assumptions_columns='B:C'
+    ticker_columns='C'
+    #
+    # assumptions_first_row :meth: `int` The first row in the excel interface of input data. 
+    # ticker_first_row  :meth: `int` The first row in the excel interface of ticker data.
+    # assumptions_columns :meth:`str` A string showing the columns within the excel interface file holding the general assumptions. 
+    # ticker_columns  :meth:`str` A string showing the column within the excel interface file holding the tickers. 
 	
 
     
     ############################
     #read general assumptions from the interfacefile
-	assumptions  = pandas.read_excel(interface_filename, 'Assumptions', skiprows = assumptions_first_row - 2, index_col = 0, parse_cols= assumptions_columns)
+    assumptions  = pandas.read_excel(interface_filename, 'Assumptions', skiprows = assumptions_first_row - 2, index_col = 0, parse_cols= assumptions_columns)
     
     val_date = assumptions.ix['Valuation Date', 0]
     val_date = pandas.Timestamp(val_date) #cast date to Pandas timestamp
@@ -94,21 +94,21 @@ def adj_close(interface_filename='get_stocks_for_tsr.xlsx' ):
         
     ############################
     #get list of tickers from the interface file
-	ticker_data = pandas.read_excel(interface_filename, 'Assumptions', skiprows = ticker_first_row - 2, parse_cols= ticker_columns)
+    ticker_data = pandas.read_excel(interface_filename, 'Assumptions', skiprows = ticker_first_row - 2, parse_cols= ticker_columns)
     ticker_data = ticker_data[ticker_data.Tickers.notnull()] # remove rows that do not contain tickers
     
-	############################
-	# Show the progress fish to user whilst program is running
-	fishy = fish.ProgressFish(total=len(ticker_data.Tickers))
+    ############################
+    # Show the progress fish to user whilst program is running
+    fishy = fish.ProgressFish(total=len(ticker_data.Tickers))
     
     ############################
     # Download adjusted stock price data directly from Yahoo! API   
     stock_dict = {}
     no_data = []
-	for i, ticker in enumerate(ticker_data.Tickers):
+    for i, ticker in enumerate(ticker_data.Tickers):
 		
-		# use Progress fish so the user can see how long the run time will be 
-		fishy.animate(amount = i)
+	# use Progress fish so the user can see how long the run time will be 
+	fishy.animate(amount = i)
 		
         # make sure the selected ticker has stock data over the specified period, if not display a message and exclude the ticker
         try:
